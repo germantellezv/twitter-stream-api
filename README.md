@@ -1,8 +1,9 @@
 # twitter-stream-api
 
-Get the N amount of tweets that match with certaing words
+Get the N amount of tweets that match with certain words
 
 ## Installation
+Install redis on your machine, clone this repo and install the dependencies
 
 ```
 npm install

@@ -1,12 +1,33 @@
 const express = require("express");
-const app = express();
 const redis = require("redis");
+const resolvers = require('./lib/resolvers')
+const { graphqlHTTP } = require('express-graphql')
+const { makeExecutableSchema } = require('graphql-tools')
+const { readFileSync } = require('fs')
+const { join } = require('path')
+
+const app = express();
+
+// GraphQl 
+const typeDefs = readFileSync(join(__dirname,'lib','schema.graphql'), 'utf-8')
+const schema = makeExecutableSchema({typeDefs, resolvers})
+
+app.use('/api-gql', graphqlHTTP({
+  schema: schema,
+  rootValue: resolvers,
+  graphiql: true
+}))
+
+
 const client = redis.createClient();
 
 // Validar error on redis connection
 client.on("error", function(error) {
   console.error(error);
 });
+
+
+
 
 // Obtain the latest 50 tweets
 app.get("/", function (req, res) {
@@ -18,10 +39,13 @@ app.get("/", function (req, res) {
       data.unshift(JSON.parse(key))
     }
 
-    console.log(`Mostrando ${reply.length} resultados`);
+    console.log(`Mostrando ${reply.length} resultados.`);
     res.send(data);
   });
 });
+
+
+
 
 const PORT = 3000;
 app.listen(PORT, function () {
